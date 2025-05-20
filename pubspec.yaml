@@ -1,24 +1,21 @@
 name: custom_tooltip_flutter
-description: "A new Flutter plugin project."
+description: "A highly customizable tooltip widget for Flutter."
 version: 0.0.1
-homepage:
+homepage: https://github.com/ngtrongha/custom_tooltip_flutter
+repository: https://github.com/ngtrongha/custom_tooltip_flutter
 
 environment:
-  sdk: ^3.7.2
+  sdk: '>=3.0.0 <4.0.0'
   flutter: '>=3.3.0'
 
 dependencies:
   flutter:
     sdk: flutter
-  flutter_web_plugins:
-    sdk: flutter
-  web: ^1.0.0
-  plugin_platform_interface: ^2.0.2
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^5.0.0
+  flutter_lints: ^3.0.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -35,22 +32,22 @@ flutter:
   # This is required for using `dart:ffi`.
   # All these are used by the tooling to maintain consistency when
   # adding or updating assets for this project.
-  plugin:
-    platforms:
-      android:
-        package: com.example.custom_tooltip_flutter
-        pluginClass: CustomTooltipFlutterPlugin
-      ios:
-        pluginClass: CustomTooltipFlutterPlugin
-      linux:
-        pluginClass: CustomTooltipFlutterPlugin
-      macos:
-        pluginClass: CustomTooltipFlutterPlugin
-      windows:
-        pluginClass: CustomTooltipFlutterPluginCApi
-      web:
-        pluginClass: CustomTooltipFlutterWeb
-        fileName: custom_tooltip_flutter_web.dart
+  # plugin:
+  #   platforms:
+  #     android:
+  #       package: com.example.custom_tooltip_flutter
+  #       pluginClass: CustomTooltipFlutterPlugin
+  #     ios:
+  #       pluginClass: CustomTooltipFlutterPlugin
+  #     linux:
+  #       pluginClass: CustomTooltipFlutterPlugin
+  #     macos:
+  #       pluginClass: CustomTooltipFlutterPlugin
+  #     windows:
+  #       pluginClass: CustomTooltipFlutterPluginCApi
+  #     web:
+  #       pluginClass: CustomTooltipFlutterWeb
+  #       fileName: custom_tooltip_flutter_web.dart
 
   # To add assets to your plugin package, add an assets section, like this:
   # assets:
