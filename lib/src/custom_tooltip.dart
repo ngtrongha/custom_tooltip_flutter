@@ -10,6 +10,7 @@ class CustomTooltip extends StatefulWidget {
   final double offset;
   final double? contentWidth;
   final BoxDecoration? decoration;
+  final EdgeInsetsGeometry? padding;
 
   const CustomTooltip({
     super.key,
@@ -19,6 +20,7 @@ class CustomTooltip extends StatefulWidget {
     this.offset = 4.0,
     this.contentWidth,
     this.decoration,
+    this.padding,
   });
 
   static BoxDecoration _defaultDecoration(BuildContext context) {
@@ -118,55 +120,64 @@ class _CustomTooltipState extends State<CustomTooltip>
       final double borderWidth = borderSide.width;
 
       _overlayEntry = OverlayEntry(
-        builder: (context) => CompositedTransformFollower(
-          link: _layerLink,
-          showWhenUnlinked: false,
-          targetAnchor: Alignment.bottomCenter,
-          followerAnchor: Alignment.topCenter,
-          offset: Offset(0, widget.offset),
-          child: FadeTransition(
-            opacity: _opacityAnimation,
-            child: ScaleTransition(
-              scale: _scaleAnimation,
-              alignment: Alignment.topCenter,
-              child: Align(
+        builder: (context) {
+          final EdgeInsetsGeometry baseContentPadding =
+              widget.padding ?? const EdgeInsets.all(12.0);
+          final EdgeInsets resolvedContentPadding =
+              baseContentPadding.resolve(ui.TextDirection.ltr);
+
+          final EdgeInsets finalPadding = EdgeInsets.fromLTRB(
+            resolvedContentPadding.left + borderWidth,
+            resolvedContentPadding.top + widget.arrowSize + borderWidth,
+            resolvedContentPadding.right + borderWidth,
+            resolvedContentPadding.bottom + borderWidth,
+          );
+
+          return CompositedTransformFollower(
+            link: _layerLink,
+            showWhenUnlinked: false,
+            targetAnchor: Alignment.bottomCenter,
+            followerAnchor: Alignment.topCenter,
+            offset: Offset(0, widget.offset),
+            child: FadeTransition(
+              opacity: _opacityAnimation,
+              child: ScaleTransition(
+                scale: _scaleAnimation,
                 alignment: Alignment.topCenter,
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(),
-                  child: Material(
-                    color: Colors.transparent,
-                    child: CustomPaint(
-                      painter: CustomTooltipShapePainter(
-                        backgroundColor: bgColor,
-                        borderColor: borderSide.color,
-                        borderWidth: borderWidth,
-                        borderRadius: br,
-                        arrowSize: widget.arrowSize,
-                        boxShadow: effectiveDecoration.boxShadow,
-                      ),
-                      child: Container(
-                        constraints: widget.contentWidth != null
-                            ? BoxConstraints(
-                                minWidth: widget.contentWidth!,
-                                maxWidth: widget.contentWidth!,
-                              )
-                            : null,
-                        padding: EdgeInsets.fromLTRB(
-                          borderWidth + 12,
-                          widget.arrowSize + borderWidth + 12,
-                          borderWidth + 12,
-                          borderWidth + 12,
+                child: Align(
+                  alignment: Alignment.topCenter,
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: CustomPaint(
+                        painter: CustomTooltipShapePainter(
+                          backgroundColor: bgColor,
+                          borderColor: borderSide.color,
+                          borderWidth: borderWidth,
+                          borderRadius: br,
+                          arrowSize: widget.arrowSize,
+                          boxShadow: effectiveDecoration.boxShadow,
                         ),
-                        child: MouseRegion(
-                          onEnter: (_) {
-                            _isMouseOverTooltip = true;
-                            _hideTimer?.cancel();
-                          },
-                          onExit: (_) {
-                            _isMouseOverTooltip = false;
-                            _tryHideTooltip();
-                          },
-                          child: widget.tooltipContent,
+                        child: Container(
+                          constraints: widget.contentWidth != null
+                              ? BoxConstraints(
+                                  minWidth: widget.contentWidth!,
+                                  maxWidth: widget.contentWidth!,
+                                )
+                              : null,
+                          padding: finalPadding,
+                          child: MouseRegion(
+                            onEnter: (_) {
+                              _isMouseOverTooltip = true;
+                              _hideTimer?.cancel();
+                            },
+                            onExit: (_) {
+                              _isMouseOverTooltip = false;
+                              _tryHideTooltip();
+                            },
+                            child: widget.tooltipContent,
+                          ),
                         ),
                       ),
                     ),
@@ -174,8 +185,8 @@ class _CustomTooltipState extends State<CustomTooltip>
                 ),
               ),
             ),
-          ),
-        ),
+          );
+        },
       );
       Overlay.of(context).insert(_overlayEntry!);
     }

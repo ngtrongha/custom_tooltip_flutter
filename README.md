@@ -96,6 +96,7 @@ The `CustomTooltip` widget accepts the following properties for customization:
 *   `offset`: `double` (default: `4.0`) - The vertical distance between the child widget and the tooltip.
 *   `contentWidth`: `double?` (optional) - A fixed width for the tooltip content. If null, it sizes to its content.
 *   `decoration`: `BoxDecoration?` (optional) - Custom decoration for the tooltip container. Allows you to control background color, border, border radius, shadow, etc.
+*   `padding`: `EdgeInsetsGeometry?` (optional) - Custom padding for the tooltip content. If null, a default padding is applied (currently `EdgeInsets.all(12.0)` internally, plus space for the border and arrow).
 
 ## Contributing
 

@@ -49,12 +49,16 @@ class MyApp extends StatelessWidget {
                 arrowSize: 12.0, // Larger arrow
                 offset: 8.0, // Increased offset
                 contentWidth: 200.0, // Fixed content width
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 10,
+                ), // Custom padding for the tooltip content
                 decoration: BoxDecoration(
                   color: Colors.deepPurpleAccent,
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha:0.3),
+                      color: Colors.black.withValues(alpha: 0.3),
                       blurRadius: 8,
                       offset: const Offset(0, 4),
                     ),
