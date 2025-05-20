@@ -12,27 +12,26 @@ class CustomTooltip extends StatefulWidget {
   final BoxDecoration? decoration;
 
   const CustomTooltip({
-    Key? key,
+    super.key,
     required this.child,
     required this.tooltipContent,
     this.arrowSize = 8,
     this.offset = 4.0,
     this.contentWidth,
     this.decoration,
-  }) : super(key: key);
+  });
 
   static BoxDecoration _defaultDecoration(BuildContext context) {
     return BoxDecoration(
-      color:
-          Theme.of(context).brightness == Brightness.dark
-              ? Colors.black87
-              : Colors.white,
+      color: Theme.of(context).brightness == Brightness.dark
+          ? Colors.black87
+          : Colors.white,
       borderRadius: BorderRadius.circular(8),
       boxShadow: [
         BoxShadow(
-          color: Colors.black.withOpacity(0.1),
+          color: Colors.black.withValues(alpha: 0.1),
           blurRadius: 4,
-          offset: Offset(0, 2),
+          offset: const Offset(0, 2),
         ),
       ],
     );
@@ -100,11 +99,10 @@ class _CustomTooltipState extends State<CustomTooltip>
       final effectiveDecoration =
           widget.decoration ?? CustomTooltip._defaultDecoration(context);
       final bgColor = effectiveDecoration.color ?? Colors.white;
-      final br =
-          effectiveDecoration.borderRadius
+      final br = effectiveDecoration.borderRadius
               ?.resolve(ui.TextDirection.ltr)
               .topLeft ??
-          Radius.circular(8);
+          const Radius.circular(8);
 
       BorderSide borderSide = BorderSide.none;
       if (effectiveDecoration.border is Border) {
@@ -120,59 +118,55 @@ class _CustomTooltipState extends State<CustomTooltip>
       final double borderWidth = borderSide.width;
 
       _overlayEntry = OverlayEntry(
-        builder:
-            (context) => CompositedTransformFollower(
-              link: _layerLink,
-              showWhenUnlinked: false,
-              targetAnchor: Alignment.bottomCenter,
-              followerAnchor: Alignment.topCenter,
-              offset: Offset(0, widget.offset),
-              child: FadeTransition(
-                opacity: _opacityAnimation,
-                child: ScaleTransition(
-                  scale: _scaleAnimation,
-                  alignment: Alignment.topCenter,
-                  child: Align(
-                    alignment: Alignment.topCenter,
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(),
-                      child: Material(
-                        color: Colors.transparent,
-                        child: CustomPaint(
-                          painter: CustomTooltipShapePainter(
-                            backgroundColor: bgColor,
-                            borderColor: borderSide.color,
-                            borderWidth: borderWidth,
-                            borderRadius: br,
-                            arrowSize: widget.arrowSize,
-                            boxShadow: effectiveDecoration.boxShadow,
-                          ),
-                          child: Container(
-                            constraints:
-                                widget.contentWidth != null
-                                    ? BoxConstraints(
-                                      minWidth: widget.contentWidth!,
-                                      maxWidth: widget.contentWidth!,
-                                    )
-                                    : null,
-                            padding: EdgeInsets.fromLTRB(
-                              borderWidth + 12,
-                              widget.arrowSize + borderWidth + 12,
-                              borderWidth + 12,
-                              borderWidth + 12,
-                            ),
-                            child: MouseRegion(
-                              onEnter: (_) {
-                                _isMouseOverTooltip = true;
-                                _hideTimer?.cancel();
-                              },
-                              onExit: (_) {
-                                _isMouseOverTooltip = false;
-                                _tryHideTooltip();
-                              },
-                              child: widget.tooltipContent,
-                            ),
-                          ),
+        builder: (context) => CompositedTransformFollower(
+          link: _layerLink,
+          showWhenUnlinked: false,
+          targetAnchor: Alignment.bottomCenter,
+          followerAnchor: Alignment.topCenter,
+          offset: Offset(0, widget.offset),
+          child: FadeTransition(
+            opacity: _opacityAnimation,
+            child: ScaleTransition(
+              scale: _scaleAnimation,
+              alignment: Alignment.topCenter,
+              child: Align(
+                alignment: Alignment.topCenter,
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(),
+                  child: Material(
+                    color: Colors.transparent,
+                    child: CustomPaint(
+                      painter: CustomTooltipShapePainter(
+                        backgroundColor: bgColor,
+                        borderColor: borderSide.color,
+                        borderWidth: borderWidth,
+                        borderRadius: br,
+                        arrowSize: widget.arrowSize,
+                        boxShadow: effectiveDecoration.boxShadow,
+                      ),
+                      child: Container(
+                        constraints: widget.contentWidth != null
+                            ? BoxConstraints(
+                                minWidth: widget.contentWidth!,
+                                maxWidth: widget.contentWidth!,
+                              )
+                            : null,
+                        padding: EdgeInsets.fromLTRB(
+                          borderWidth + 12,
+                          widget.arrowSize + borderWidth + 12,
+                          borderWidth + 12,
+                          borderWidth + 12,
+                        ),
+                        child: MouseRegion(
+                          onEnter: (_) {
+                            _isMouseOverTooltip = true;
+                            _hideTimer?.cancel();
+                          },
+                          onExit: (_) {
+                            _isMouseOverTooltip = false;
+                            _tryHideTooltip();
+                          },
+                          child: widget.tooltipContent,
                         ),
                       ),
                     ),
@@ -180,6 +174,8 @@ class _CustomTooltipState extends State<CustomTooltip>
                 ),
               ),
             ),
+          ),
+        ),
       );
       Overlay.of(context).insert(_overlayEntry!);
     }
@@ -234,11 +230,10 @@ class CustomTooltipShapePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final Paint fillPaint = Paint()..color = backgroundColor;
-    final Paint borderPaint =
-        Paint()
-          ..color = borderColor
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = borderWidth;
+    final Paint borderPaint = Paint()
+      ..color = borderColor
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = borderWidth;
 
     final double arrowWidth = arrowSize * 2;
     final double arrowHalfWidth = arrowWidth / 2;
