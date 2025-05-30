@@ -78,7 +78,7 @@ class CustomTooltip extends StatefulWidget {
       borderRadius: BorderRadius.circular(8),
       boxShadow: [
         BoxShadow(
-          color: Colors.black.withOpacity(0.1),
+          color: Colors.black.withValues(alpha: 0.1),
           blurRadius: 4,
           offset: const Offset(0, 2),
         ),
@@ -116,15 +116,13 @@ class _CustomTooltipState extends State<CustomTooltip>
   final GlobalKey _tooltipKey = GlobalKey();
 
   bool _isMouseOverTarget = false;
-  bool _isMouseOverTooltip = false;
+  final bool _isMouseOverTooltip = false;
   bool _isTooltipVisible = false;
-  PreferredPosition _currentPosition = PreferredPosition.below;
   bool _isHolding = false;
 
   @override
   void initState() {
     super.initState();
-    _currentPosition = widget.preferredPosition;
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 200),
@@ -557,7 +555,7 @@ class _TooltipPositioner extends StatefulWidget {
   final List<BoxShadow>? boxShadow;
 
   const _TooltipPositioner({
-    Key? key,
+    super.key,
     required this.targetPosition,
     required this.targetSize,
     required this.screenSize,
@@ -574,7 +572,7 @@ class _TooltipPositioner extends StatefulWidget {
     required this.borderRadius,
     required this.borderColor,
     required this.boxShadow,
-  }) : super(key: key);
+  });
 
   @override
   State<_TooltipPositioner> createState() => _TooltipPositionerState();
@@ -597,16 +595,18 @@ class _TooltipPositionerState extends State<_TooltipPositioner> {
     final above = widget.targetPosition.dy;
     final below = widget.screenSize.height -
         (widget.targetPosition.dy + widget.targetSize.height);
-    final left = widget.targetPosition.dx;
     final right = widget.screenSize.width -
         (widget.targetPosition.dx + widget.targetSize.width);
     // Ưu tiên dưới, trên, phải, trái
-    if (below >= tooltipSize.height + widget.offset)
+    if (below >= tooltipSize.height + widget.offset) {
       return PreferredPosition.below;
-    if (above >= tooltipSize.height + widget.offset)
+    }
+    if (above >= tooltipSize.height + widget.offset) {
       return PreferredPosition.above;
-    if (right >= tooltipSize.width + widget.offset)
+    }
+    if (right >= tooltipSize.width + widget.offset) {
       return PreferredPosition.right;
+    }
     return PreferredPosition.left;
   }
 
@@ -635,8 +635,9 @@ class _TooltipPositionerState extends State<_TooltipPositioner> {
         arrowOffset =
             (widget.targetPosition.dx + widget.targetSize.width / 2) - left;
         if (arrowOffset < minArrowPadding) arrowOffset = minArrowPadding;
-        if (arrowOffset > tooltipSize.width - minArrowPadding)
+        if (arrowOffset > tooltipSize.width - minArrowPadding) {
           arrowOffset = tooltipSize.width - minArrowPadding;
+        }
         break;
       case PreferredPosition.above:
         left = widget.targetPosition.dx +
@@ -651,8 +652,9 @@ class _TooltipPositionerState extends State<_TooltipPositioner> {
         arrowOffset =
             (widget.targetPosition.dx + widget.targetSize.width / 2) - left;
         if (arrowOffset < minArrowPadding) arrowOffset = minArrowPadding;
-        if (arrowOffset > tooltipSize.width - minArrowPadding)
+        if (arrowOffset > tooltipSize.width - minArrowPadding) {
           arrowOffset = tooltipSize.width - minArrowPadding;
+        }
         break;
       case PreferredPosition.right:
         left =
@@ -668,8 +670,9 @@ class _TooltipPositionerState extends State<_TooltipPositioner> {
         arrowOffset =
             (widget.targetPosition.dy + widget.targetSize.height / 2) - top;
         if (arrowOffset < minArrowPadding) arrowOffset = minArrowPadding;
-        if (arrowOffset > tooltipSize.height - minArrowPadding)
+        if (arrowOffset > tooltipSize.height - minArrowPadding) {
           arrowOffset = tooltipSize.height - minArrowPadding;
+        }
         break;
       case PreferredPosition.left:
         left = widget.targetPosition.dx - tooltipSize.width - widget.offset;
@@ -684,8 +687,9 @@ class _TooltipPositionerState extends State<_TooltipPositioner> {
         arrowOffset =
             (widget.targetPosition.dy + widget.targetSize.height / 2) - top;
         if (arrowOffset < minArrowPadding) arrowOffset = minArrowPadding;
-        if (arrowOffset > tooltipSize.height - minArrowPadding)
+        if (arrowOffset > tooltipSize.height - minArrowPadding) {
           arrowOffset = tooltipSize.height - minArrowPadding;
+        }
         break;
     }
 
