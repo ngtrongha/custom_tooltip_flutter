@@ -1,6 +1,4 @@
 import 'dart:async';
-import 'dart:ui' as ui;
-import 'dart:io' show Platform;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
@@ -172,10 +170,9 @@ class _CustomTooltipState extends State<CustomTooltip>
     final effectiveDecoration =
         widget.decoration ?? CustomTooltip._defaultDecoration(context);
     final bgColor = effectiveDecoration.color ?? Colors.white;
-    final br = effectiveDecoration.borderRadius
-            ?.resolve(ui.TextDirection.ltr)
-            .topLeft ??
-        const Radius.circular(8);
+    final br =
+        effectiveDecoration.borderRadius?.resolve(TextDirection.ltr).topLeft ??
+            const Radius.circular(8);
 
     BorderSide borderSide = BorderSide.none;
     if (effectiveDecoration.border is Border) {
@@ -255,7 +252,7 @@ class _CustomTooltipState extends State<CustomTooltip>
 
   @override
   Widget build(BuildContext context) {
-    if (kIsWeb || Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
+    if (kIsWeb) {
       return MouseRegion(
         onEnter: (_) {
           _isMouseOverTarget = true;
@@ -329,7 +326,11 @@ class CustomTooltipShapePainter extends CustomPainter {
 
     if (boxShadow != null) {
       for (final shadow in boxShadow!) {
-        canvas.drawPath(path.shift(shadow.offset), shadow.toPaint());
+        final shadowPath = path.shift(shadow.offset);
+        final shadowPaint = Paint()
+          ..color = shadow.color.withValues(alpha: shadow.color.a)
+          ..maskFilter = MaskFilter.blur(BlurStyle.normal, shadow.blurRadius);
+        canvas.drawPath(shadowPath, shadowPaint);
       }
     }
 
@@ -706,7 +707,7 @@ class _TooltipPositionerState extends State<_TooltipPositioner> {
     final EdgeInsetsGeometry baseContentPadding =
         widget.padding ?? const EdgeInsets.all(12.0);
     final EdgeInsets resolvedContentPadding =
-        baseContentPadding.resolve(ui.TextDirection.ltr);
+        baseContentPadding.resolve(TextDirection.ltr);
     EdgeInsets finalPadding;
     // Điều chỉnh padding theo vị trí
     switch (_position ?? PreferredPosition.below) {
