@@ -1,3 +1,8 @@
+## 0.1.1
+
+* Added WASM compatibility for web platform
+* Improved shadow rendering for better cross-platform support 
+
 ## 0.1.0
 
 * Added support for hold gesture on mobile devices
