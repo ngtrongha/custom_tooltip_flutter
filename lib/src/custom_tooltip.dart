@@ -3,11 +3,19 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 
-/// A customizable tooltip widget that supports various positions and interactions.
+/// A highly customizable tooltip widget that supports various positions and interactions.
 ///
 /// This widget provides a tooltip that can be positioned above, below, left, or right
 /// of the target widget. It supports hover interactions on desktop/web and tap/hold
 /// interactions on mobile devices.
+///
+/// Example:
+/// ```dart
+/// CustomTooltip(
+///   tooltipContent: const Text('This is a tooltip!'),
+///   child: const Icon(Icons.info),
+/// )
+/// ```
 class CustomTooltip extends StatefulWidget {
   /// The widget that will trigger the tooltip when interacted with.
   /// This is the widget that users will hover over (desktop/web) or tap/hold (mobile).
@@ -276,16 +284,41 @@ class _CustomTooltipState extends State<CustomTooltip>
   }
 }
 
+/// A custom painter that draws the tooltip shape with an arrow.
+///
+/// This painter is responsible for drawing the tooltip's background, border,
+/// and arrow in the specified position. It handles different positions (above,
+/// below, left, right) and applies the appropriate styling.
 class CustomTooltipShapePainter extends CustomPainter {
+  /// The background color of the tooltip.
   final Color backgroundColor;
+
+  /// The color of the tooltip's border.
   final Color borderColor;
+
+  /// The width of the tooltip's border.
   final double borderWidth;
+
+  /// The border radius of the tooltip's corners.
   final Radius borderRadius;
+
+  /// The size of the arrow pointing to the target widget.
   final double arrowSize;
+
+  /// Optional box shadows to apply to the tooltip.
   final List<BoxShadow>? boxShadow;
+
+  /// The position of the tooltip relative to the target widget.
   final PreferredPosition position;
+
+  /// The offset of the arrow from the left or top edge of the tooltip.
+  /// This is used to position the arrow correctly relative to the target widget.
   final double arrowOffset;
 
+  /// Creates a custom painter for the tooltip shape.
+  ///
+  /// All parameters are required to properly draw the tooltip with the desired
+  /// appearance and positioning.
   CustomTooltipShapePainter({
     required this.backgroundColor,
     required this.borderColor,
