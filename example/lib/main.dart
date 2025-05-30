@@ -39,20 +39,13 @@ class MyApp extends StatelessWidget {
               ),
               const SizedBox(height: 10),
               CustomTooltip(
-                tooltipContent: Container(
-                  padding: const EdgeInsets.all(8.0),
-                  child: const Text(
-                    'This is a customized tooltip with a larger arrow, different offset, fixed width, and custom decoration.',
-                    textAlign: TextAlign.center,
-                  ),
+                tooltipContent: const Text(
+                  'This is a customized tooltip with a larger arrow, different offset, fixed width, and custom decoration.',
+                  textAlign: TextAlign.center,
                 ),
                 arrowSize: 12.0, // Larger arrow
                 offset: 8.0, // Increased offset
-                contentWidth: 200.0, // Fixed content width
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 10,
-                ), // Custom padding for the tooltip content
+
                 decoration: BoxDecoration(
                   color: Colors.deepPurpleAccent,
                   borderRadius: BorderRadius.circular(12),
