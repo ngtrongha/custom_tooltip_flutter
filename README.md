@@ -33,7 +33,7 @@ Add `custom_tooltip_flutter` to your `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  custom_tooltip_flutter: ^0.1.0
+  custom_tooltip_flutter: ^0.1.1
 ```
 
 Then, run `flutter pub get` in your terminal.
