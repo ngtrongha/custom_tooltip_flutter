@@ -158,37 +158,6 @@ class _CustomTooltipState extends State<CustomTooltip>
     super.dispose();
   }
 
-  PreferredPosition _calculatePosition(
-      Size tooltipSize, Size targetSize, Offset targetPosition) {
-    final screenSize = MediaQuery.of(context).size;
-    final availableSpace = {
-      PreferredPosition.above: targetPosition.dy,
-      PreferredPosition.below:
-          screenSize.height - targetPosition.dy - targetSize.height,
-      PreferredPosition.left: targetPosition.dx,
-      PreferredPosition.right:
-          screenSize.width - targetPosition.dx - targetSize.width,
-    };
-
-    // Try preferred position first
-    if (availableSpace[widget.preferredPosition]! >= tooltipSize.height) {
-      return widget.preferredPosition;
-    }
-
-    // Find the position with the most available space
-    PreferredPosition bestPosition = PreferredPosition.below;
-    double maxSpace = 0;
-
-    availableSpace.forEach((position, space) {
-      if (space > maxSpace) {
-        maxSpace = space;
-        bestPosition = position;
-      }
-    });
-
-    return bestPosition;
-  }
-
   void _tryShowTooltip() {
     _hideTimer?.cancel();
     if (_animationController.status == AnimationStatus.reverse) {
