@@ -5,6 +5,7 @@ void main() {
   runApp(const MyApp());
 }
 
+/// Main application widget demonstrating various CustomTooltip configurations.
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -19,6 +20,7 @@ class MyApp extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
+              // Example 1: Basic tooltip with default settings
               const Text(
                 'Default Tooltip:',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -33,6 +35,8 @@ class MyApp extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 40),
+
+              // Example 2: Customized tooltip with advanced styling
               const Text(
                 'Customized Tooltip:',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -43,9 +47,8 @@ class MyApp extends StatelessWidget {
                   'This is a customized tooltip with a larger arrow, different offset, fixed width, and custom decoration.',
                   textAlign: TextAlign.center,
                 ),
-                arrowSize: 12.0, // Larger arrow
-                offset: 8.0, // Increased offset
-
+                arrowSize: 12.0, // Larger arrow for better visibility
+                offset: 8.0, // Increased distance from target
                 decoration: BoxDecoration(
                   color: Colors.deepPurpleAccent,
                   borderRadius: BorderRadius.circular(12),
@@ -66,6 +69,102 @@ class MyApp extends StatelessWidget {
                   ),
                   child: const Text(
                     'Hover Me!',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 40),
+
+              // Example 3: Mouse focus test - demonstrates improved mouse tracking
+              const Text(
+                'Mouse Focus Test Tooltip:',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 10),
+              CustomTooltip(
+                tooltipContent: Container(
+                  padding: const EdgeInsets.all(8.0),
+                  child: const Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'Hover over this tooltip content!',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      SizedBox(height: 4),
+                      Text(
+                        'The tooltip should stay open when you move your mouse from the target to this content.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: 12),
+                      ),
+                    ],
+                  ),
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.green.shade100,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.green, width: 2),
+                ),
+                child: Container(
+                  padding: const EdgeInsets.all(16.0),
+                  decoration: BoxDecoration(
+                    color: Colors.green,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Text(
+                    'Test Mouse Focus',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 40),
+
+              // Example 4: Tap to open mode - demonstrates the new tap functionality
+              const Text(
+                'Tap to Open Tooltip:',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 10),
+              CustomTooltip(
+                // Enable tap to open mode - disables mouse hover
+                enableTapToOpen: true,
+                tooltipContent: Container(
+                  padding: const EdgeInsets.all(8.0),
+                  child: const Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'Tap to Open Mode!',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      SizedBox(height: 4),
+                      Text(
+                        'This tooltip opens on tap and closes on tap again.\nMouse hover is disabled in this mode.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: 12),
+                      ),
+                    ],
+                  ),
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.red.shade100,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.red, width: 2),
+                ),
+                child: Container(
+                  padding: const EdgeInsets.all(16.0),
+                  decoration: BoxDecoration(
+                    color: Colors.red,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Text(
+                    'Tap Me!',
                     style: TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
