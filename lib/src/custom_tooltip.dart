@@ -3,6 +3,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 
+import 'package:custom_tooltip_flutter/src/preferred_position.dart';
+import 'package:custom_tooltip_flutter/src/tooltip_positioner.dart';
+
 /// A highly customizable tooltip widget that supports various positions and interactions.
 ///
 /// This widget provides a tooltip that can be positioned above, below, left, or right
@@ -61,6 +64,12 @@ class CustomTooltip extends StatefulWidget {
   /// Default is false.
   final bool useHoldGesture;
 
+  /// Dùng để truy cập các hàm điều khiển tooltip từ bên ngoài.
+  static CustomTooltipState? of(BuildContext context) {
+    final state = context.findAncestorStateOfType<_CustomTooltipState>();
+    return state;
+  }
+
   /// Creates a custom tooltip widget.
   const CustomTooltip({
     super.key,
@@ -96,23 +105,13 @@ class CustomTooltip extends StatefulWidget {
   State<CustomTooltip> createState() => _CustomTooltipState();
 }
 
-/// The preferred position of the tooltip relative to the target widget.
-enum PreferredPosition {
-  /// Position the tooltip above the target widget.
-  above,
-
-  /// Position the tooltip below the target widget.
-  below,
-
-  /// Position the tooltip to the left of the target widget.
-  left,
-
-  /// Position the tooltip to the right of the target widget.
-  right,
+abstract class CustomTooltipState extends State<CustomTooltip> {
+  void hideTooltip();
 }
 
 class _CustomTooltipState extends State<CustomTooltip>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin
+    implements CustomTooltipState {
   OverlayEntry? _overlayEntry;
   final LayerLink _layerLink = LayerLink();
   late final AnimationController _animationController;
@@ -200,28 +199,24 @@ class _CustomTooltipState extends State<CustomTooltip>
     final screenSize = MediaQuery.of(context).size;
 
     _overlayEntry = OverlayEntry(
-      builder: (context) => Stack(
-        children: [
-          _TooltipPositioner(
-            key: _tooltipKey,
-            targetPosition: targetPosition,
-            targetSize: targetSize,
-            screenSize: screenSize,
-            offset: widget.offset,
-            animation: _opacityAnimation,
-            scaleAnimation: _scaleAnimation,
-            minWidth: widget.minWidth,
-            maxWidth: widget.maxWidth,
-            arrowSize: widget.arrowSize,
-            borderWidth: borderSide.width,
-            padding: widget.padding,
-            decoration: effectiveDecoration,
-            tooltipContent: widget.tooltipContent,
-            borderRadius: br,
-            borderColor: borderSide.color,
-            boxShadow: effectiveDecoration.boxShadow,
-          ),
-        ],
+      builder: (context) => TooltipPositioner(
+        key: _tooltipKey,
+        targetPosition: targetPosition,
+        targetSize: targetSize,
+        screenSize: screenSize,
+        offset: widget.offset,
+        animation: _opacityAnimation,
+        scaleAnimation: _scaleAnimation,
+        minWidth: widget.minWidth,
+        maxWidth: widget.maxWidth,
+        arrowSize: widget.arrowSize,
+        borderWidth: borderSide.width,
+        padding: widget.padding,
+        decoration: effectiveDecoration,
+        tooltipContent: widget.tooltipContent,
+        borderRadius: br,
+        borderColor: borderSide.color,
+        boxShadow: effectiveDecoration.boxShadow,
       ),
     );
     Overlay.of(context).insert(_overlayEntry!);
@@ -282,566 +277,12 @@ class _CustomTooltipState extends State<CustomTooltip>
       child: CompositedTransformTarget(link: _layerLink, child: widget.child),
     );
   }
-}
-
-/// A custom painter that draws the tooltip shape with an arrow.
-///
-/// This painter is responsible for drawing the tooltip's background, border,
-/// and arrow in the specified position. It handles different positions (above,
-/// below, left, right) and applies the appropriate styling.
-class CustomTooltipShapePainter extends CustomPainter {
-  /// The background color of the tooltip.
-  final Color backgroundColor;
-
-  /// The color of the tooltip's border.
-  final Color borderColor;
-
-  /// The width of the tooltip's border.
-  final double borderWidth;
-
-  /// The border radius of the tooltip's corners.
-  final Radius borderRadius;
-
-  /// The size of the arrow pointing to the target widget.
-  final double arrowSize;
-
-  /// Optional box shadows to apply to the tooltip.
-  final List<BoxShadow>? boxShadow;
-
-  /// The position of the tooltip relative to the target widget.
-  final PreferredPosition position;
-
-  /// The offset of the arrow from the left or top edge of the tooltip.
-  /// This is used to position the arrow correctly relative to the target widget.
-  final double arrowOffset;
-
-  /// Creates a custom painter for the tooltip shape.
-  ///
-  /// All parameters are required to properly draw the tooltip with the desired
-  /// appearance and positioning.
-  CustomTooltipShapePainter({
-    required this.backgroundColor,
-    required this.borderColor,
-    required this.borderWidth,
-    required this.borderRadius,
-    required this.arrowSize,
-    this.boxShadow,
-    required this.position,
-    required this.arrowOffset,
-  });
 
   @override
-  void paint(Canvas canvas, Size size) {
-    final Paint fillPaint = Paint()..color = backgroundColor;
-    final Paint borderPaint = Paint()
-      ..color = borderColor
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = borderWidth;
-
-    final double arrowWidth = arrowSize * 2;
-    final double arrowHalfWidth = arrowWidth / 2;
-
-    Path path = Path();
-    switch (position) {
-      case PreferredPosition.below:
-        _paintBelowPath(path, size, arrowWidth, arrowHalfWidth, arrowOffset);
-        break;
-      case PreferredPosition.above:
-        _paintAbovePath(path, size, arrowWidth, arrowHalfWidth, arrowOffset);
-        break;
-      case PreferredPosition.left:
-        _paintLeftPath(path, size, arrowWidth, arrowHalfWidth, arrowOffset);
-        break;
-      case PreferredPosition.right:
-        _paintRightPath(path, size, arrowWidth, arrowHalfWidth, arrowOffset);
-        break;
+  void hideTooltip() {
+    if (_isTooltipVisible) {
+      _tryHideTooltip();
+      _isTooltipVisible = false;
     }
-
-    if (boxShadow != null) {
-      for (final shadow in boxShadow!) {
-        final shadowPath = path.shift(shadow.offset);
-        final shadowPaint = Paint()
-          ..color = shadow.color.withValues(alpha: shadow.color.a)
-          ..maskFilter = MaskFilter.blur(BlurStyle.normal, shadow.blurRadius);
-        canvas.drawPath(shadowPath, shadowPaint);
-      }
-    }
-
-    canvas.drawPath(path, fillPaint);
-    if (borderWidth > 0.001) {
-      canvas.drawPath(path, borderPaint);
-    }
-  }
-
-  void _paintBelowPath(Path path, Size size, double arrowWidth,
-      double arrowHalfWidth, double arrowOffset) {
-    final Rect bodyRect = Rect.fromLTWH(
-      0,
-      arrowSize,
-      size.width,
-      size.height - arrowSize,
-    );
-
-    path.moveTo(bodyRect.left + borderRadius.x, bodyRect.top);
-    if (arrowOffset - arrowHalfWidth > bodyRect.left + borderRadius.x) {
-      path.lineTo(arrowOffset - arrowHalfWidth, bodyRect.top);
-      path.lineTo(arrowOffset, bodyRect.top - arrowSize);
-      path.lineTo(arrowOffset + arrowHalfWidth, bodyRect.top);
-    }
-    path.lineTo(bodyRect.right - borderRadius.x, bodyRect.top);
-
-    path.arcToPoint(
-      Offset(bodyRect.right, bodyRect.top + borderRadius.y),
-      radius: borderRadius,
-      clockwise: true,
-    );
-
-    path.lineTo(bodyRect.right, bodyRect.bottom - borderRadius.y);
-    path.arcToPoint(
-      Offset(bodyRect.right - borderRadius.x, bodyRect.bottom),
-      radius: borderRadius,
-      clockwise: true,
-    );
-
-    path.lineTo(bodyRect.left + borderRadius.x, bodyRect.bottom);
-    path.arcToPoint(
-      Offset(bodyRect.left, bodyRect.bottom - borderRadius.y),
-      radius: borderRadius,
-      clockwise: true,
-    );
-
-    path.lineTo(bodyRect.left, bodyRect.top + borderRadius.y);
-    path.arcToPoint(
-      Offset(bodyRect.left + borderRadius.x, bodyRect.top),
-      radius: borderRadius,
-      clockwise: true,
-    );
-    path.close();
-  }
-
-  void _paintAbovePath(Path path, Size size, double arrowWidth,
-      double arrowHalfWidth, double arrowOffset) {
-    final Rect bodyRect = Rect.fromLTWH(
-      0,
-      0,
-      size.width,
-      size.height - arrowSize,
-    );
-
-    path.moveTo(bodyRect.left + borderRadius.x, bodyRect.bottom);
-    if (arrowOffset - arrowHalfWidth > bodyRect.left + borderRadius.x) {
-      path.lineTo(arrowOffset - arrowHalfWidth, bodyRect.bottom);
-      path.lineTo(arrowOffset, bodyRect.bottom + arrowSize);
-      path.lineTo(arrowOffset + arrowHalfWidth, bodyRect.bottom);
-    }
-    path.lineTo(bodyRect.right - borderRadius.x, bodyRect.bottom);
-
-    path.arcToPoint(
-      Offset(bodyRect.right, bodyRect.bottom - borderRadius.y),
-      radius: borderRadius,
-      clockwise: false,
-    );
-
-    path.lineTo(bodyRect.right, bodyRect.top + borderRadius.y);
-    path.arcToPoint(
-      Offset(bodyRect.right - borderRadius.x, bodyRect.top),
-      radius: borderRadius,
-      clockwise: false,
-    );
-
-    path.lineTo(bodyRect.left + borderRadius.x, bodyRect.top);
-    path.arcToPoint(
-      Offset(bodyRect.left, bodyRect.top + borderRadius.y),
-      radius: borderRadius,
-      clockwise: false,
-    );
-
-    path.lineTo(bodyRect.left, bodyRect.bottom - borderRadius.y);
-    path.arcToPoint(
-      Offset(bodyRect.left + borderRadius.x, bodyRect.bottom),
-      radius: borderRadius,
-      clockwise: false,
-    );
-    path.close();
-  }
-
-  void _paintLeftPath(Path path, Size size, double arrowWidth,
-      double arrowHalfWidth, double arrowOffset) {
-    final Rect bodyRect = Rect.fromLTWH(
-      arrowSize,
-      0,
-      size.width - arrowSize,
-      size.height,
-    );
-
-    path.moveTo(bodyRect.left, bodyRect.top + borderRadius.y);
-    if (arrowOffset - arrowHalfWidth > bodyRect.top + borderRadius.y) {
-      path.lineTo(bodyRect.left, arrowOffset - arrowHalfWidth);
-      path.lineTo(bodyRect.left - arrowSize, arrowOffset);
-      path.lineTo(bodyRect.left, arrowOffset + arrowHalfWidth);
-    }
-    path.lineTo(bodyRect.left, bodyRect.bottom - borderRadius.y);
-
-    path.arcToPoint(
-      Offset(bodyRect.left + borderRadius.x, bodyRect.bottom),
-      radius: borderRadius,
-      clockwise: true,
-    );
-
-    path.lineTo(bodyRect.right - borderRadius.x, bodyRect.bottom);
-    path.arcToPoint(
-      Offset(bodyRect.right, bodyRect.bottom - borderRadius.y),
-      radius: borderRadius,
-      clockwise: true,
-    );
-
-    path.lineTo(bodyRect.right, bodyRect.top + borderRadius.y);
-    path.arcToPoint(
-      Offset(bodyRect.right - borderRadius.x, bodyRect.top),
-      radius: borderRadius,
-      clockwise: true,
-    );
-
-    path.lineTo(bodyRect.left + borderRadius.x, bodyRect.top);
-    path.arcToPoint(
-      Offset(bodyRect.left, bodyRect.top + borderRadius.y),
-      radius: borderRadius,
-      clockwise: true,
-    );
-    path.close();
-  }
-
-  void _paintRightPath(Path path, Size size, double arrowWidth,
-      double arrowHalfWidth, double arrowOffset) {
-    final Rect bodyRect = Rect.fromLTWH(
-      0,
-      0,
-      size.width - arrowSize,
-      size.height,
-    );
-
-    path.moveTo(bodyRect.right, bodyRect.top + borderRadius.y);
-    if (arrowOffset - arrowHalfWidth > bodyRect.top + borderRadius.y) {
-      path.lineTo(bodyRect.right, arrowOffset - arrowHalfWidth);
-      path.lineTo(bodyRect.right + arrowSize, arrowOffset);
-      path.lineTo(bodyRect.right, arrowOffset + arrowHalfWidth);
-    }
-    path.lineTo(bodyRect.right, bodyRect.bottom - borderRadius.y);
-
-    path.arcToPoint(
-      Offset(bodyRect.right - borderRadius.x, bodyRect.bottom),
-      radius: borderRadius,
-      clockwise: false,
-    );
-
-    path.lineTo(bodyRect.left + borderRadius.x, bodyRect.bottom);
-    path.arcToPoint(
-      Offset(bodyRect.left, bodyRect.bottom - borderRadius.y),
-      radius: borderRadius,
-      clockwise: false,
-    );
-
-    path.lineTo(bodyRect.left, bodyRect.top + borderRadius.y);
-    path.arcToPoint(
-      Offset(bodyRect.left + borderRadius.x, bodyRect.top),
-      radius: borderRadius,
-      clockwise: false,
-    );
-
-    path.lineTo(bodyRect.right - borderRadius.x, bodyRect.top);
-    path.arcToPoint(
-      Offset(bodyRect.right, bodyRect.top + borderRadius.y),
-      radius: borderRadius,
-      clockwise: false,
-    );
-    path.close();
-  }
-
-  @override
-  bool shouldRepaint(CustomTooltipShapePainter oldDelegate) {
-    return backgroundColor != oldDelegate.backgroundColor ||
-        borderColor != oldDelegate.borderColor ||
-        borderWidth != oldDelegate.borderWidth ||
-        borderRadius != oldDelegate.borderRadius ||
-        arrowSize != oldDelegate.arrowSize ||
-        boxShadow != oldDelegate.boxShadow ||
-        position != oldDelegate.position ||
-        arrowOffset != oldDelegate.arrowOffset;
-  }
-}
-
-class _TooltipPositioner extends StatefulWidget {
-  final Offset targetPosition;
-  final Size targetSize;
-  final Size screenSize;
-  final double offset;
-  final Animation<double> animation;
-  final Animation<double> scaleAnimation;
-  final double? minWidth;
-  final double? maxWidth;
-  final double arrowSize;
-  final double borderWidth;
-  final EdgeInsetsGeometry? padding;
-  final BoxDecoration decoration;
-  final Widget tooltipContent;
-  final Radius borderRadius;
-  final Color borderColor;
-  final List<BoxShadow>? boxShadow;
-
-  const _TooltipPositioner({
-    super.key,
-    required this.targetPosition,
-    required this.targetSize,
-    required this.screenSize,
-    required this.offset,
-    required this.animation,
-    required this.scaleAnimation,
-    required this.minWidth,
-    required this.maxWidth,
-    required this.arrowSize,
-    required this.borderWidth,
-    required this.padding,
-    required this.decoration,
-    required this.tooltipContent,
-    required this.borderRadius,
-    required this.borderColor,
-    required this.boxShadow,
-  });
-
-  @override
-  State<_TooltipPositioner> createState() => _TooltipPositionerState();
-}
-
-class _TooltipPositionerState extends State<_TooltipPositioner> {
-  final GlobalKey _childKey = GlobalKey();
-  double? _left;
-  double? _top;
-  double? _arrowOffset;
-  PreferredPosition? _position;
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _updatePosition());
-  }
-
-  PreferredPosition _chooseBestPosition(Size tooltipSize) {
-    final above = widget.targetPosition.dy;
-    final below = widget.screenSize.height -
-        (widget.targetPosition.dy + widget.targetSize.height);
-    final right = widget.screenSize.width -
-        (widget.targetPosition.dx + widget.targetSize.width);
-    // Ưu tiên dưới, trên, phải, trái
-    if (below >= tooltipSize.height + widget.offset) {
-      return PreferredPosition.below;
-    }
-    if (above >= tooltipSize.height + widget.offset) {
-      return PreferredPosition.above;
-    }
-    if (right >= tooltipSize.width + widget.offset) {
-      return PreferredPosition.right;
-    }
-    return PreferredPosition.left;
-  }
-
-  void _updatePosition() {
-    final RenderBox? tooltipBox =
-        _childKey.currentContext?.findRenderObject() as RenderBox?;
-    if (tooltipBox == null) return;
-    final tooltipSize = tooltipBox.size;
-    final position = _chooseBestPosition(tooltipSize);
-    double left = 0, top = 0, arrowOffset = 0;
-    const double minArrowPadding = 16;
-
-    switch (position) {
-      case PreferredPosition.below:
-        left = widget.targetPosition.dx +
-            widget.targetSize.width / 2 -
-            tooltipSize.width / 2;
-        top =
-            widget.targetPosition.dy + widget.targetSize.height + widget.offset;
-        // Clamp left
-        if (left < 8) left = 8;
-        if (left + tooltipSize.width > widget.screenSize.width - 8) {
-          left = widget.screenSize.width - tooltipSize.width - 8;
-        }
-        // Arrow offset theo trục X
-        arrowOffset =
-            (widget.targetPosition.dx + widget.targetSize.width / 2) - left;
-        if (arrowOffset < minArrowPadding) arrowOffset = minArrowPadding;
-        if (arrowOffset > tooltipSize.width - minArrowPadding) {
-          arrowOffset = tooltipSize.width - minArrowPadding;
-        }
-        break;
-      case PreferredPosition.above:
-        left = widget.targetPosition.dx +
-            widget.targetSize.width / 2 -
-            tooltipSize.width / 2;
-        top = widget.targetPosition.dy - tooltipSize.height - widget.offset;
-        if (left < 8) left = 8;
-        if (left + tooltipSize.width > widget.screenSize.width - 8) {
-          left = widget.screenSize.width - tooltipSize.width - 8;
-        }
-        if (top < 8) top = 8;
-        arrowOffset =
-            (widget.targetPosition.dx + widget.targetSize.width / 2) - left;
-        if (arrowOffset < minArrowPadding) arrowOffset = minArrowPadding;
-        if (arrowOffset > tooltipSize.width - minArrowPadding) {
-          arrowOffset = tooltipSize.width - minArrowPadding;
-        }
-        break;
-      case PreferredPosition.right:
-        left =
-            widget.targetPosition.dx + widget.targetSize.width + widget.offset;
-        top = widget.targetPosition.dy +
-            widget.targetSize.height / 2 -
-            tooltipSize.height / 2;
-        if (top < 8) top = 8;
-        if (top + tooltipSize.height > widget.screenSize.height - 8) {
-          top = widget.screenSize.height - tooltipSize.height - 8;
-        }
-        // Arrow offset theo trục Y
-        arrowOffset =
-            (widget.targetPosition.dy + widget.targetSize.height / 2) - top;
-        if (arrowOffset < minArrowPadding) arrowOffset = minArrowPadding;
-        if (arrowOffset > tooltipSize.height - minArrowPadding) {
-          arrowOffset = tooltipSize.height - minArrowPadding;
-        }
-        break;
-      case PreferredPosition.left:
-        left = widget.targetPosition.dx - tooltipSize.width - widget.offset;
-        top = widget.targetPosition.dy +
-            widget.targetSize.height / 2 -
-            tooltipSize.height / 2;
-        if (top < 8) top = 8;
-        if (top + tooltipSize.height > widget.screenSize.height - 8) {
-          top = widget.screenSize.height - tooltipSize.height - 8;
-        }
-        if (left < 8) left = 8;
-        arrowOffset =
-            (widget.targetPosition.dy + widget.targetSize.height / 2) - top;
-        if (arrowOffset < minArrowPadding) arrowOffset = minArrowPadding;
-        if (arrowOffset > tooltipSize.height - minArrowPadding) {
-          arrowOffset = tooltipSize.height - minArrowPadding;
-        }
-        break;
-    }
-
-    setState(() {
-      _left = left;
-      _top = top;
-      _arrowOffset = arrowOffset;
-      _position = position;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final EdgeInsetsGeometry baseContentPadding =
-        widget.padding ?? const EdgeInsets.all(12.0);
-    final EdgeInsets resolvedContentPadding =
-        baseContentPadding.resolve(TextDirection.ltr);
-    EdgeInsets finalPadding;
-    // Điều chỉnh padding theo vị trí
-    switch (_position ?? PreferredPosition.below) {
-      case PreferredPosition.below:
-        finalPadding = EdgeInsets.fromLTRB(
-          resolvedContentPadding.left + widget.borderWidth,
-          resolvedContentPadding.top + widget.arrowSize + widget.borderWidth,
-          resolvedContentPadding.right + widget.borderWidth,
-          resolvedContentPadding.bottom + widget.borderWidth,
-        );
-        break;
-      case PreferredPosition.above:
-        finalPadding = EdgeInsets.fromLTRB(
-          resolvedContentPadding.left + widget.borderWidth,
-          resolvedContentPadding.top + widget.borderWidth,
-          resolvedContentPadding.right + widget.borderWidth,
-          resolvedContentPadding.bottom + widget.arrowSize + widget.borderWidth,
-        );
-        break;
-      case PreferredPosition.left:
-        finalPadding = EdgeInsets.fromLTRB(
-          resolvedContentPadding.left + widget.arrowSize + widget.borderWidth,
-          resolvedContentPadding.top + widget.borderWidth,
-          resolvedContentPadding.right + widget.borderWidth,
-          resolvedContentPadding.bottom + widget.borderWidth,
-        );
-        break;
-      case PreferredPosition.right:
-        finalPadding = EdgeInsets.fromLTRB(
-          resolvedContentPadding.left + widget.borderWidth,
-          resolvedContentPadding.top + widget.borderWidth,
-          resolvedContentPadding.right + widget.arrowSize + widget.borderWidth,
-          resolvedContentPadding.bottom + widget.borderWidth,
-        );
-        break;
-    }
-    return (_left == null ||
-            _top == null ||
-            _arrowOffset == null ||
-            _position == null)
-        ? Positioned(
-            left: 0,
-            top: 0,
-            child: Opacity(
-              opacity: 0,
-              child: _buildTooltip(finalPadding, 24, PreferredPosition.below),
-            ),
-          )
-        : Positioned(
-            left: _left,
-            top: _top,
-            child: FadeTransition(
-              opacity: widget.animation,
-              child: ScaleTransition(
-                scale: widget.scaleAnimation,
-                alignment: Alignment.topCenter,
-                child: _buildTooltip(finalPadding, _arrowOffset!, _position!),
-              ),
-            ),
-          );
-  }
-
-  Widget _buildTooltip(
-      EdgeInsets finalPadding, double arrowOffset, PreferredPosition position) {
-    return Material(
-      color: Colors.transparent,
-      child: Container(
-        key: _childKey,
-        constraints: BoxConstraints(
-          minWidth: widget.minWidth ?? 0,
-          maxWidth: widget.maxWidth ?? double.infinity,
-        ),
-        child: CustomPaint(
-          painter: CustomTooltipShapePainter(
-            backgroundColor: widget.decoration.color ?? Colors.white,
-            borderColor: widget.borderColor,
-            borderWidth: widget.borderWidth,
-            borderRadius: widget.borderRadius,
-            arrowSize: widget.arrowSize,
-            boxShadow: widget.boxShadow,
-            position: position,
-            arrowOffset: arrowOffset,
-          ),
-          child: Container(
-            padding: finalPadding,
-            child: IntrinsicWidth(
-              child: IntrinsicHeight(
-                child: _buildContent(),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildContent() {
-    final c = widget.tooltipContent;
-    if (c is Align || c is Center || c is Row || c is Column) {
-      return c;
-    }
-    return Center(child: c);
   }
 }

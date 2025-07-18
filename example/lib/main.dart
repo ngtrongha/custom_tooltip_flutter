@@ -10,6 +10,8 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Tạo GlobalKey để truy cập state của CustomTooltip
+    final tooltipKey = GlobalKey<CustomTooltipState>();
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(title: const Text('CustomTooltip Examples')),
@@ -25,12 +27,20 @@ class MyApp extends StatelessWidget {
               ),
               const SizedBox(height: 10),
               CustomTooltip(
+                key: tooltipKey,
                 tooltipContent: const Text('This is a default tooltip!'),
                 child: const Icon(
                   Icons.info_outline,
                   size: 50,
                   color: Colors.blue,
                 ),
+              ),
+              const SizedBox(height: 10),
+              ElevatedButton(
+                onPressed: () {
+                  tooltipKey.currentState?.hideTooltip();
+                },
+                child: const Text('Hide Tooltip (Demo)'),
               ),
               const SizedBox(height: 40),
               const Text(
@@ -45,7 +55,6 @@ class MyApp extends StatelessWidget {
                 ),
                 arrowSize: 12.0, // Larger arrow
                 offset: 8.0, // Increased offset
-
                 decoration: BoxDecoration(
                   color: Colors.deepPurpleAccent,
                   borderRadius: BorderRadius.circular(12),
