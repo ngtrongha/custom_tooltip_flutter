@@ -183,6 +183,7 @@ class _CustomTooltipState extends State<CustomTooltip>
       // Remove overlay entry when animation is dismissed
       _overlayEntry?.remove();
       _overlayEntry = null;
+      _isTooltipVisible = false;
     }
   }
 
@@ -204,6 +205,7 @@ class _CustomTooltipState extends State<CustomTooltip>
     // If animation is currently reversing, forward it to show tooltip
     if (_animationController.status == AnimationStatus.reverse) {
       _animationController.forward();
+      _isTooltipVisible = true;
       return;
     }
 
@@ -214,6 +216,7 @@ class _CustomTooltipState extends State<CustomTooltip>
 
     // Start the show animation
     _animationController.forward();
+    _isTooltipVisible = true;
   }
 
   /// Creates the overlay entry that contains the tooltip widget
