@@ -1,3 +1,7 @@
+## 0.2.3
+
+* Fixed: In `enableTapToOpen` mode, tapping again now properly closes the tooltip. Previously, the tooltip could not be closed by tapping a second time due to a state synchronization issue.
+
 ## 0.2.2
 
 * Fixed: `hideTooltip` did not work when showing/hiding the tooltip from outside or via hover/tap. Now the tooltip visibility state (`_isTooltipVisible`) is always synchronized, ensuring `hideTooltip` works correctly on all platforms and trigger methods.

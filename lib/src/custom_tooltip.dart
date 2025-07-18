@@ -115,6 +115,7 @@ class CustomTooltip extends StatefulWidget {
 
 abstract class CustomTooltipState extends State<CustomTooltip> {
   void hideTooltip();
+  void showTooltip(); // Thêm hàm public showTooltip
 }
 
 class _CustomTooltipState extends State<CustomTooltip>
@@ -189,11 +190,12 @@ class _CustomTooltipState extends State<CustomTooltip>
 
   @override
   void dispose() {
-    // Clean up resources to prevent memory leaks
     _hideTimer?.cancel();
     _animationController.removeStatusListener(_handleAnimationStatus);
+    _animationController.stop(); // Dừng animation nếu đang chạy
     _animationController.dispose();
     _overlayEntry?.remove();
+    _overlayEntry = null; // Đảm bảo overlay được giải phóng
     super.dispose();
   }
 
@@ -323,7 +325,6 @@ class _CustomTooltipState extends State<CustomTooltip>
     } else {
       _tryShowTooltip();
     }
-    _isTooltipVisible = !_isTooltipVisible;
   }
 
   /// Handles the start of hold gesture (for mobile hold interaction)
@@ -379,7 +380,13 @@ class _CustomTooltipState extends State<CustomTooltip>
   void hideTooltip() {
     if (_isTooltipVisible) {
       _tryHideTooltip();
-      _isTooltipVisible = false;
+    }
+  }
+
+  @override
+  void showTooltip() {
+    if (!_isTooltipVisible) {
+      _tryShowTooltip();
     }
   }
 }
