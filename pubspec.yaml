@@ -1,6 +1,6 @@
 name: custom_tooltip_flutter
 description: "A highly customizable tooltip widget for Flutter with support for multiple positions, animations, and platform-specific interactions (hover for desktop/web, tap/hold for mobile)."
-version: 0.2.0
+version: 0.2.1
 homepage: https://github.com/ngtrongha/custom_tooltip_flutter
 repository: https://github.com/ngtrongha/custom_tooltip_flutter
 
@@ -15,7 +15,7 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^3.0.0
+  flutter_lints: ^6.0.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

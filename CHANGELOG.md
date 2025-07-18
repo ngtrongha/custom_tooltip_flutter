@@ -1,3 +1,10 @@
+## 0.2.1
+
+* Refactor: Tách các widget/phần logic lớn ra file riêng (`preferred_position.dart`, `custom_tooltip_shape_painter.dart`, `tooltip_positioner.dart`) giúp dễ bảo trì và mở rộng.
+* Thêm hàm `hideTooltip` cho phép ẩn tooltip từ bên ngoài qua GlobalKey hoặc context.
+* Cập nhật ví dụ sử dụng thực tế hàm `hideTooltip`.
+* Cải thiện khả năng mở rộng và quản lý mã nguồn.
+
 ## 0.2.0
 
 * Added `enableTapToOpen` property for tap-to-open functionality on all platforms
