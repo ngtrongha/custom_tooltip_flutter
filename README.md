@@ -20,12 +20,14 @@ A highly customizable tooltip widget for your Flutter applications. Display info
 * **Platform-Specific Interactions**:
   - Desktop/Web: Hover to show/hide tooltip
   - Mobile: Tap to toggle or hold to show (configurable)
+  - All platforms: Tap to open/close tooltip (optional, disables mouse hover)
 * **Multiple Positions**: Position tooltips above, below, left, or right of the target widget
 * **Fully Customizable Content**: Use any widget as the content of your tooltip
 * **Customizable Appearance**: Control arrow size, offset, width constraints, and apply custom `BoxDecoration`
 * **Smooth Animations**: Built-in fade and scale animations
 * **Responsive Design**: Automatically adjusts position based on available space
 * **Pure Dart**: Works on all platforms supported by Flutter
+* **Modular Architecture**: Well-organized, maintainable code structure
 
 ## Getting Started
 
@@ -33,7 +35,7 @@ Add `custom_tooltip_flutter` to your `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  custom_tooltip_flutter: ^0.1.1
+  custom_tooltip_flutter: ^0.2.0
 ```
 
 Then, run `flutter pub get` in your terminal.
@@ -110,6 +112,18 @@ CustomTooltip(
 )
 ```
 
+### Tap to Open Example (All Platforms)
+
+```dart
+CustomTooltip(
+  tooltipContent: const Text('Tap to open/close this tooltip'),
+  enableTapToOpen: true, // Enable tap to open on all platforms
+  child: const Icon(Icons.info),
+)
+```
+
+**Note**: When `enableTapToOpen` is set to `true`, mouse hover functionality is automatically disabled.
+
 ## Properties
 
 The `CustomTooltip` widget accepts the following properties for customization:
@@ -124,16 +138,53 @@ The `CustomTooltip` widget accepts the following properties for customization:
 * `padding`: `EdgeInsetsGeometry?` (optional) - Custom padding for the tooltip content
 * `preferredPosition`: `PreferredPosition` (default: `PreferredPosition.below`) - The preferred position of the tooltip
 * `useHoldGesture`: `bool` (default: `false`) - Whether to use hold gesture instead of tap on mobile devices
+* `enableTapToOpen`: `bool` (default: `false`) - Whether to enable tap to open functionality on all platforms
 
 ## Platform-Specific Behavior
 
 * **Desktop/Web**: Tooltips appear on hover and disappear when the mouse leaves
 * **Mobile (Default)**: Tooltips toggle on tap
 * **Mobile (with `useHoldGesture: true`)**: Tooltips appear on hold and disappear on release
+* **All platforms (with `enableTapToOpen: true`)**: Tooltips toggle on tap, mouse hover is disabled
+
+## Code Architecture
+
+The package is built with a modular architecture for better maintainability and code organization:
+
+```
+lib/src/
+├── models/
+│   └── preferred_position.dart          # Enum for tooltip positioning
+├── painters/
+│   └── custom_tooltip_shape_painter.dart # Custom painter for tooltip shapes
+├── widgets/
+│   └── tooltip_positioner.dart         # Widget for tooltip positioning
+├── exports.dart                        # Export file for easy importing
+├── custom_tooltip.dart                 # Main CustomTooltip widget
+└── README.md                          # Source code documentation
+```
+
+### Benefits of Modular Structure
+
+* **Separation of Concerns**: Each file has a single, well-defined responsibility
+* **Maintainability**: Smaller, focused files are easier to understand and maintain
+* **Reusability**: Components can be imported and used independently
+* **Testing**: Each component can be tested in isolation
+* **Extensibility**: Easy to add new features or modify existing ones
+
+For detailed information about the source code structure, see [lib/src/README.md](lib/src/README.md).
 
 ## Contributing
 
 Contributions are welcome! If you find any issues or have suggestions for improvements, please open an issue or submit a pull request on the [GitHub repository](https://github.com/ngtrongha/custom_tooltip_flutter).
+
+### Development Guidelines
+
+1. **Keep files focused**: Each file should have a single responsibility
+2. **Use clear naming**: File and class names should be descriptive
+3. **Maintain documentation**: Keep comments and documentation up to date
+4. **Follow Flutter conventions**: Use proper import organization and naming
+5. **Test components**: Write tests for individual components when possible
 
 ## License
 
