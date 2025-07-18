@@ -291,7 +291,7 @@ class _CustomTooltipState extends State<CustomTooltip>
   }
 
   /// Attempts to hide the tooltip with a delay to allow for mouse movement
-  void _tryHideTooltip() {
+  void _tryHideTooltip({bool force = false}) {
     // Cancel any existing hide timer
     _hideTimer?.cancel();
 
@@ -308,7 +308,8 @@ class _CustomTooltipState extends State<CustomTooltip>
       } else {
         // Original logic for mouse hover mode
         // Only hide if mouse is not over target, tooltip, and not holding
-        if (!_isMouseOverTarget && !_isMouseOverTooltip && !_isHolding) {
+        if (force ||
+            (!_isMouseOverTarget && !_isMouseOverTooltip && !_isHolding)) {
           if (_animationController.status == AnimationStatus.forward ||
               _animationController.status == AnimationStatus.completed) {
             _animationController.reverse();
@@ -379,7 +380,7 @@ class _CustomTooltipState extends State<CustomTooltip>
   @override
   void hideTooltip() {
     if (_isTooltipVisible) {
-      _tryHideTooltip();
+      _tryHideTooltip(force: true);
     }
   }
 

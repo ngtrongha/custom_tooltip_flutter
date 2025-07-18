@@ -1,3 +1,7 @@
+## 0.2.4
+
+* Fixed: Calling `hideTooltip` from outside now always hides the tooltip immediately, even on web (force hide), regardless of mouse hover state.
+
 ## 0.2.3
 
 * Fixed: In `enableTapToOpen` mode, tapping again now properly closes the tooltip. Previously, the tooltip could not be closed by tapping a second time due to a state synchronization issue.
